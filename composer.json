@@ -1,0 +1,18 @@
+{
+  "name": "jimraynor1/table_importer",
+  "description": "Imports table",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "require": {
+    "monolog/monolog": "^1.22"
+  },
+  "autoload": {
+    "psr-4": {"Jinraynor1\\TableImporter\\": "src"}
+  },
+  "authors": [
+    {
+      "name": "Jimmy Atauje Hidalgo",
+      "email": "jimmy.atauje@gmail.com"
+    }
+  ]
+}
