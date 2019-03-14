@@ -4,7 +4,9 @@
   "minimum-stability": "stable",
   "license": "proprietary",
   "require": {
-    "monolog/monolog": "^1.22"
+    "monolog/monolog": "^1.22",
+    "php": ">=5.4.0",
+    "ext-pdo": "*"
   },
   "autoload": {
     "psr-4": {"Jinraynor1\\TableImporter\\": "src"}
