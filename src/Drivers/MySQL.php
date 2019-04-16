@@ -15,7 +15,7 @@ class MySQL extends AbstractDatabase
 
         $sql = '
 			LOAD DATA LOCAL INFILE ' . $this->database->quote($this->file->getRealPath()) . '
-			REPLACE INTO TABLE ' . $this->quoteIdent('new_' . $this->table_name) . '
+			IGNORE INTO TABLE ' . $this->quoteIdent('new_' . $this->table_name) . '
 			FIELDS TERMINATED BY ' . $this->database->quote($delimiter) . '
 			OPTIONALLY ENCLOSED BY ' . $this->database->quote($enclosure) . '
 			ESCAPED BY ' . $this->database->quote($this->csv_escape_char);

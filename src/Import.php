@@ -7,7 +7,7 @@ use Jinraynor1\TableImporter\Drivers\AbstractDatabase;
 use Jinraynor1\TableImporter\Drivers\DatabaseInterface;
 use Jinraynor1\TableImporter\Drivers\DefaultDriver;
 use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
+
 use Psr\Log\NullLogger;
 
 
@@ -18,7 +18,7 @@ class Import implements LoggerAwareInterface
 
     const MODE_REPLACE = 1;
     const MODE_APPEND = 2;
-
+    private $import_mode = self::MODE_REPLACE;
     protected $tmp_file;
     protected $table_name;
     protected $tmp_filename_prefix = 'jinraynor1_table_importer_';
@@ -32,13 +32,6 @@ class Import implements LoggerAwareInterface
      * @var \SplFileObject
      */
     protected $file;
-
-
-
-    /**
-     * @var int
-     */
-    private $options;
 
     /**
      * @var \PDO
@@ -81,24 +74,35 @@ class Import implements LoggerAwareInterface
         $this->target_config = $target_config;
     }
 
-    public function setImportOptions($options)
+
+    public function setImportModeIsAppend()
     {
-        $this->options = $options;
+        $this->import_mode = self::MODE_APPEND;
+        return $this;
+    }
+
+    public function setImportModeIsReplace()
+    {
+        $this->import_mode = self::MODE_REPLACE;
+        return $this;
     }
 
     public function setTableName($table_name)
     {
         $this->table_name = $table_name;
+        return $this;
     }
 
     public function setQuery($query)
     {
         $this->query = $query;
+        return $this;
     }
 
     public function setImportDriver(DatabaseInterface $import_driver)
     {
         $this->import_driver = $import_driver;
+        return $this;
     }
 
     public function __destruct()
@@ -112,7 +116,7 @@ class Import implements LoggerAwareInterface
     {
 
         $this->logger->info("start");
-
+        $records_imported = 0;
         try {
 
             $this->validate();
@@ -140,10 +144,12 @@ class Import implements LoggerAwareInterface
 
         } catch (\Exception $e) {
             $this->logger->critical(sprintf("error code: %s, error message: %s", $e->getLine(), $e->getMessage()));
+            return $records_imported;
         }
 
         $this->logger->info("end");
 
+        return $records_imported;
     }
 
     public function validate()
@@ -234,12 +240,12 @@ class Import implements LoggerAwareInterface
     {
 
 
-        if ($this->options & self::MODE_APPEND) {
+        if ($this->import_mode == self::MODE_APPEND) {
             $this->logger->info("push mode is append");
 
             $affected_rows = $this->import_driver->load();
 
-        } elseif ($this->options & self::MODE_REPLACE) {
+        } elseif ($this->import_mode == self::MODE_REPLACE) {
             $this->logger->info("push mode is replace");
 
             $old_table = $this->table_name;

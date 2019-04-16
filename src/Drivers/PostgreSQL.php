@@ -15,6 +15,8 @@ class PostgreSQL extends AbstractDatabase
     public function optimizedInsert()
     {
 
+        throw new \RuntimeException("postgres not implemented yet");
+
         $sql = "COPY myTable FROM '/path/to/file/on/server' ( FORMAT CSV, DELIMITER('|') )";
     }
 

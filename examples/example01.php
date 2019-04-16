@@ -10,10 +10,12 @@ use Monolog\Logger;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 
-$logger = new Logger("test01");
+$logger = new Logger("example01");
 $logger->pushHandler(new StreamHandler('php://stdout'));
 
-
+/**
+ * Configure source
+ */
 $source_config = new ConfigDatabase();
 $source_config->setHost("localhost")
     ->setDatabaseName("mysql")
@@ -21,6 +23,10 @@ $source_config->setHost("localhost")
     ->setPassword("root")
     ->setPort("3306")
     ->setDriver("mysql");
+
+/**
+ * Configure target
+ */
 
 $target_config = $config = new ConfigDatabase();
 $target_config->setHost("localhost")
@@ -30,28 +36,36 @@ $target_config->setHost("localhost")
     ->setPort("3306")
     ->setDriver("mysql");
 
+
+/**
+ * Init driver an create importer
+ */
 $driver = new MySQL();
 
-
-
 $import = new Import($source_config, $target_config);
-$import->setImportOptions(Import::MODE_REPLACE);
-$import->setLogger($logger);
-$import->setTableName("user");
-$import->setQuery("SELECT * FROM user");
-$import->setImportDriver($driver);
+$import->setImportModeIsReplace()
+    ->setTableName("user")
+    ->setQuery("SELECT * FROM user")
+    ->setImportDriver($driver)
+    ->setLogger($logger);
+
+
+/**
+ * Try all insert mode available
+ */
+
 
 echo "------ ADVANCED LOAD ----- " . PHP_EOL;
-$driver->setOptions(MySQL::USE_ADVANCED_LOAD);
+$driver->setInsertModeAdvanced();
 $import->run();
 echo PHP_EOL;
 
 echo "------ NORMAL INSERT ----- " . PHP_EOL;
-$driver->setOptions(MYSQL::USE_NORMAL_INSERT);
+$driver->setInsertModeBasic();
 $import->run();
 echo PHP_EOL;
 
 echo "------ MULTIPLE INSERT ----- " . PHP_EOL;
-$driver->setOptions(MYSQL::USE_NORMAL_INSERT);
+$driver->setInsertModeMultiple();
 $import->run();
 echo PHP_EOL;

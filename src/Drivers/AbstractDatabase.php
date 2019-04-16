@@ -11,7 +11,7 @@ abstract class AbstractDatabase implements DatabaseInterface
     const USE_MULTIPLE_INSERT = 2;
     const USE_ADVANCED_LOAD = 4;
 
-
+    private $insert_mode = self::USE_NORMAL_INSERT;
     /**
      * @var \SplFileObject
      */
@@ -38,10 +38,6 @@ abstract class AbstractDatabase implements DatabaseInterface
      * @var array
      */
     private $buffer = array();
-
-
-    private $options = self::USE_NORMAL_INSERT;
-
 
     private $lines_chunk = 10;
 
@@ -77,9 +73,23 @@ abstract class AbstractDatabase implements DatabaseInterface
         $this->table_name = $table_name;
     }
 
-    public function setOptions($options)
+    public function setInsertModeBasic()
     {
-        $this->options = $options;
+        $this->insert_mode = self::USE_NORMAL_INSERT;
+        return $this;
+    }
+
+    public function setInsertModeMultiple()
+    {
+        $this->insert_mode = self::USE_MULTIPLE_INSERT;
+        return $this;
+    }
+
+
+    public function setInsertModeAdvanced()
+    {
+        $this->insert_mode = self::USE_ADVANCED_LOAD;
+        return $this;
     }
 
     /**
@@ -88,11 +98,13 @@ abstract class AbstractDatabase implements DatabaseInterface
     public function setCsvNullValue($csv_null_value)
     {
         $this->csv_null_value = $csv_null_value;
+        return $this;
     }
 
     public function setCsvEscapeChar($csv_escape_char)
     {
         $this->csv_escape_char = $csv_escape_char;
+        return $this;
     }
 
     /**
@@ -101,6 +113,7 @@ abstract class AbstractDatabase implements DatabaseInterface
     public function setRecordsFounded($records_founded)
     {
         $this->records_founded = $records_founded;
+        return $this;
     }
 
 
@@ -108,11 +121,11 @@ abstract class AbstractDatabase implements DatabaseInterface
 
     public function load()
     {
-        if ($this->options & self::USE_ADVANCED_LOAD) {
+        if ($this->insert_mode == self::USE_ADVANCED_LOAD) {
 
             return $this->optimizedInsert();
 
-        } elseif ($this->options & self::USE_MULTIPLE_INSERT) {
+        } elseif ($this->insert_mode == self::USE_MULTIPLE_INSERT) {
 
             return $this->multipleInsert();
 
