@@ -6,15 +6,12 @@ namespace Jinraynor1\TableImporter;
 use Jinraynor1\TableImporter\Drivers\AbstractDatabase;
 use Jinraynor1\TableImporter\Drivers\DatabaseInterface;
 use Jinraynor1\TableImporter\Drivers\DefaultDriver;
-use Psr\Log\LoggerAwareInterface;
-
 use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 
-class Import implements LoggerAwareInterface
+class Import
 {
-    use LoggerAwareTrait;
-
 
     const MODE_REPLACE = 1;
     const MODE_APPEND = 2;
@@ -26,6 +23,13 @@ class Import implements LoggerAwareInterface
     protected $csv_enclosure = '"';
     protected $csv_escape_char = '\\';
     protected $csv_null_value = '\\N';
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
 
     /**
@@ -74,6 +78,17 @@ class Import implements LoggerAwareInterface
         $this->target_config = $target_config;
     }
 
+
+    /**
+     * Sets a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        return $this;
+    }
 
     public function setImportModeIsAppend()
     {
