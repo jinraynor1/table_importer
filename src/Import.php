@@ -68,7 +68,7 @@ class Import
     /**
      * @var null
      */
-    public $callback_before_push_data = null;
+    private $callback_before_push_data = null;
     /**
      * AbstractRemoteImport constructor.
      */
@@ -115,6 +115,12 @@ class Import
     public function setQuery($query)
     {
         $this->query = $query;
+        return $this;
+    }
+
+    public function setCallbackBeforePushData($callback_before_push_data)
+    {
+        $this->callback_before_push_data = $callback_before_push_data;
         return $this;
     }
 

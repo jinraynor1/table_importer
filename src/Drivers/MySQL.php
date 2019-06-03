@@ -7,14 +7,17 @@ namespace Jinraynor1\TableImporter\Drivers;
 class MySQL extends AbstractDatabase
 {
 
+    public $local_in_file =  true;
 
     public function optimizedInsert()
     {
 
         list($delimiter, $enclosure,) = $this->file->getCsvControl();
 
+        $local = $this->local_in_file?"LOCAL":"";
+
         $sql = '
-			LOAD DATA LOCAL INFILE ' . $this->database->quote($this->file->getRealPath()) . '
+			LOAD DATA '.$local.' INFILE ' . $this->database->quote($this->file->getRealPath()) . '
 			IGNORE INTO TABLE ' . $this->quoteIdent('new_' . $this->table_name) . '
 			FIELDS TERMINATED BY ' . $this->database->quote($delimiter) . '
 			OPTIONALLY ENCLOSED BY ' . $this->database->quote($enclosure) . '
