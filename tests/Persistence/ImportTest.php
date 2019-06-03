@@ -115,4 +115,25 @@ class ImportTest extends TestCase
 
     }
 
+    public function testCallbackBeforePush()
+    {
+        self::$driver->setInsertModeBasic();
+
+
+        self::$importer->callback_before_push_data = function(SplFileInfo $file) {
+
+            $lines = file($file->getRealPath());
+            $last = sizeof($lines) - 1 ;
+            unset($lines[$last]);
+
+
+            $fp = fopen($file->getRealPath(), 'w');
+            fwrite($fp, implode('', $lines));
+            fclose($fp);
+        };
+        $imported_lines = self::$importer->run();
+
+        $this->assertEquals(1, $imported_lines);
+    }
+
 }

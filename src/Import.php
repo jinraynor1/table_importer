@@ -66,6 +66,10 @@ class Import
 
 
     /**
+     * @var null
+     */
+    public $callback_before_push_data = null;
+    /**
      * AbstractRemoteImport constructor.
      */
     public function __construct(ConfigDatabase $source_config, ConfigDatabase $target_config)
@@ -152,6 +156,11 @@ class Import
             $records_founded = $this->pullData();
             $this->logger->info(sprintf("founded %d records on remote database", $records_founded));
             $this->import_driver->setRecordsFounded($records_founded);
+
+            if($this->callback_before_push_data &&  is_callable($this->callback_before_push_data)){
+                call_user_func_array($this->callback_before_push_data, array($this->file));
+            }
+
 
             $records_imported = $this->pushData();
             $this->logger->info(sprintf("%d records imported", $records_imported));
