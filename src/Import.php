@@ -245,7 +245,7 @@ class Import
 
         $records_founded = 0;
 
-
+        $handler = fopen($this->file->getRealPath(),"w");
         while ($row = $stmt->fetch()) {
 
             foreach ($row as $field => $value) {
@@ -254,8 +254,12 @@ class Import
                 }
             }
             $records_founded++;
-            $this->file->fputcsv($row);
+
+            fputcsv($handler,$row);
+
         }
+
+        fclose($handler);
 
 
         return $records_founded;

@@ -116,9 +116,6 @@ abstract class AbstractDatabase implements DatabaseInterface
         return $this;
     }
 
-
-    abstract function optimizedInsert();
-
     public function load()
     {
         if ($this->insert_mode == self::USE_ADVANCED_LOAD) {
