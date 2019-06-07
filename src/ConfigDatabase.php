@@ -14,6 +14,7 @@ class ConfigDatabase implements ConfigDatabaseInterface
     private $password;
     private $port;
     private $driver;
+    private $charset;
 
     public function __construct()
     {
@@ -122,6 +123,22 @@ class ConfigDatabase implements ConfigDatabaseInterface
     {
         $this->driver = $driver;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCharset()
+    {
+        return $this->charset;
+    }
+
+    /**
+     * @param mixed $charset
+     */
+    public function setCharset($charset)
+    {
+        $this->charset = $charset;
     }
 
 

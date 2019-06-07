@@ -18,5 +18,6 @@ interface ConfigDatabaseInterface
 
     function getDriver();
 
+    function getCharset();
 
 }

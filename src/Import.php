@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 class Import
 {
 
+
     const MODE_REPLACE = 1;
     const MODE_APPEND = 2;
     private $import_mode = self::MODE_REPLACE;
@@ -69,6 +70,7 @@ class Import
      * @var null
      */
     private $callback_before_push_data = null;
+
     /**
      * AbstractRemoteImport constructor.
      */
@@ -80,6 +82,24 @@ class Import
 
         $this->source_config = $source_config;
         $this->target_config = $target_config;
+    }
+
+    /**
+     * Create from an existing connection
+     * @param \PDO $db_source
+     * @param \PDO $db_target
+     * @return Import
+     */
+    public static function createFromConnection(\PDO $db_source, \PDO $db_target)
+    {
+        $obj = new self(new ConfigDatabase(), new ConfigDatabase());
+        $obj->db_source = $db_source;
+        $obj->db_target = $db_target;
+
+        $obj->setDefaultOptions($obj->db_source);
+        $obj->setDefaultOptions($obj->db_target);
+        return $obj;
+
     }
 
 
@@ -146,9 +166,13 @@ class Import
 
             $this->validate();
 
+            if (!$this->db_source) {
+                $this->db_source = $this->openDB($this->source_config);
+            }
 
-            $this->db_source = $this->openDB($this->source_config);
-            $this->db_target = $this->openDB($this->target_config);
+            if(!$this->db_target){
+                $this->db_target = $this->openDB($this->target_config);
+            }
 
             $this->buildFileObject();
 
@@ -163,7 +187,7 @@ class Import
             $this->logger->info(sprintf("founded %d records on remote database", $records_founded));
             $this->import_driver->setRecordsFounded($records_founded);
 
-            if($this->callback_before_push_data &&  is_callable($this->callback_before_push_data)){
+            if ($this->callback_before_push_data && is_callable($this->callback_before_push_data)) {
                 call_user_func_array($this->callback_before_push_data, array($this->file));
             }
 
@@ -209,23 +233,49 @@ class Import
     public function openDB(ConfigDatabaseInterface $config)
     {
 
-        $dsn = sprintf("%s:dbname=%s;host=%s;port=%s",
-            $config->getDriver(), $config->getDatabaseName(),
-            $config->getHost(), $config->getPort());
+        $config->getDriver();
+        $options = array();
+        if ($config->getDatabaseName()) {
+            $options[] = "dbname=" . $config->getDatabaseName();
+        }
 
+        if ($config->getHost()) {
+            $options[] = "host=" . $config->getHost();
+        }
+
+        if ($config->getPort()) {
+            $options[] = "port=" . $config->getPort();
+        }
+
+        if ($config->getCharset()) {
+            $options[] = "charset=" . $config->getCharset();
+        }
+
+        $dsn = $config->getDriver() . ':' . implode(";", $options);
 
         $pdo = new  \PDO($dsn, $config->getUsername(), $config->getPassword(), array(
-            \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION,
             \PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
 
         ));
 
-        //it seems this not works in constructors for some php versions...
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $this->setDefaultOptions($pdo);
 
         return $pdo;
 
+    }
+
+    private function setDefaultOptions(\PDO $db)
+    {
+        $options = array(
+            array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION),
+            array(\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC)
+
+        );
+        foreach ($options as $option) {
+            foreach ($option as $k => $v) {
+                $db->setAttribute($k, $v);
+            }
+        }
     }
 
 
@@ -245,7 +295,7 @@ class Import
 
         $records_founded = 0;
 
-        $handler = fopen($this->file->getRealPath(),"w");
+        $handler = fopen($this->file->getRealPath(), "w");
         while ($row = $stmt->fetch()) {
 
             foreach ($row as $field => $value) {
@@ -255,7 +305,7 @@ class Import
             }
             $records_founded++;
 
-            fputcsv($handler,$row);
+            fputcsv($handler, $row);
 
         }
 
