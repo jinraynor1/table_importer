@@ -18,6 +18,7 @@ class MySQL extends AbstractDatabase
 
         $sql = '
 			LOAD DATA '.$local.' INFILE ' . $this->database->quote($this->file->getRealPath()) . '
+			CHARACTER SET BINARY
 			IGNORE INTO TABLE ' . $this->quoteIdent('new_' . $this->table_name) . '
 			FIELDS TERMINATED BY ' . $this->database->quote($delimiter) . '
 			OPTIONALLY ENCLOSED BY ' . $this->database->quote($enclosure) . '
