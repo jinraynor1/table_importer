@@ -341,6 +341,8 @@ class Import
 
             $this->db_target->exec("CREATE TABLE $new_table LIKE $old_table");
 
+            $this->import_driver->setTableName($new_table);
+
             $affected_rows = $this->import_driver->load();
 
 

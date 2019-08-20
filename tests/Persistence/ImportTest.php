@@ -125,6 +125,17 @@ class ImportTest extends TestCase
         $this->assertEquals(1, $imported_lines);
     }
 
+    public function testModeAppend()
+    {
+        $imported_lines =  self::$importer->setImportModeIsAppend()
+            ->run();
+
+        $this->assertEquals(2, $imported_lines);
+
+
+    }
+
+
     public function testInsertModeNormal()
     {
         self::$driver->setInsertModeBasic();

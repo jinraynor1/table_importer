@@ -236,7 +236,7 @@ abstract class AbstractDatabase implements DatabaseInterface
             $values_group_list[] = "($this->placeholders_list)\n";
         }
 
-        $sql = sprintf("INSERT INTO new_$this->table_name VALUES %s", implode(',', $values_group_list));
+        $sql = sprintf("INSERT INTO $this->table_name VALUES %s", implode(',', $values_group_list));
 
 
         $this->sth = $this->database->prepare($sql);
