@@ -152,9 +152,19 @@ class Import
 
     public function __destruct()
     {
+        $this->clearFile();
+    }
+
+    public function clearFile()
+    {
         if ($this->file && $this->file->isFile()) {
             @unlink($this->file->getRealPath());
         }
+    }
+
+    public function getFile()
+    {
+        return $this->file;
     }
 
     public function run()
@@ -200,6 +210,7 @@ class Import
             $this->logger->critical(sprintf("error code: %s, error message: %s", $e->getLine(), $e->getMessage()));
             return $records_imported;
         }
+        $this->clearFile();
 
         $this->logger->info("end");
 

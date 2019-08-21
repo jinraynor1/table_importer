@@ -135,6 +135,14 @@ class ImportTest extends TestCase
 
     }
 
+    public function testTemporaryFileIsRemoved()
+    {
+        self::$importer->setImportModeIsReplace()
+            ->run();
+
+        $this->assertFalse(file_exists(self::$importer->getFile()->getRealPath()));
+    }
+
 
     public function testInsertModeNormal()
     {
