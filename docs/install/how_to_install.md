@@ -1,6 +1,6 @@
 ---
 title: How to install
-parent: Index
+parent: User Guide
 has_children: false
 nav_order: 1
 ---

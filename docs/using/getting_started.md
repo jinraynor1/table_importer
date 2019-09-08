@@ -1,6 +1,6 @@
 ---
 title: Gettins Started
-parent: Index
+parent: User Guide
 has_children: false
 nav_order: 2
 ---
