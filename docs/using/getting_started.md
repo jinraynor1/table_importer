@@ -1,3 +1,10 @@
+---
+title: Gettins Started
+parent: Index
+has_children: false
+nav_order: 2
+---
+
 # Getting Started
 
 
