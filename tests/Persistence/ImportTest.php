@@ -192,4 +192,54 @@ class ImportTest extends TestCase
         $this->assertEquals(1, $imported_lines);
     }
 
+    /**
+     * @expectedException Exception
+     */
+    public function testSetInvalidTmpDir()
+    {
+        self::$driver->setInsertModeBasic();
+        $custom_tmp_dir = sys_get_temp_dir()."/subdir1/subdir2/";
+
+        $this->expectException("Exception");
+        self::$importer->setTmpDir($custom_tmp_dir);
+
+
+    }
+
+    public function testCanSetTmpDir()
+    {
+        $custom_tmp_dir = sys_get_temp_dir()."/subdir1/subdir2/";
+        if(file_exists($custom_tmp_dir)){
+            $this->rmdir_recursive($custom_tmp_dir);
+        }
+        mkdir($custom_tmp_dir,0777,true);
+
+        $that = $this;
+        self::$importer->setTmpDir($custom_tmp_dir);
+        self::$importer->setCallbackBeforePushData( function(SplFileInfo $file) use($that, $custom_tmp_dir){
+            $path = $file->getPath();
+            $path = rtrim($path,'/');
+            $custom_tmp_dir = rtrim($custom_tmp_dir,'/');
+              $that->assertSame($custom_tmp_dir, $path);
+        });
+
+        $imported_lines = self::$importer->run();
+        $this->assertEquals(2, $imported_lines);
+        $this->rmdir_recursive($custom_tmp_dir);
+
+
+
+    }
+
+
+    private function rmdir_recursive($dir) {
+        $it = new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS);
+        $it = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
+        foreach($it as $file) {
+            if ($file->isDir()) rmdir($file->getPathname());
+            else unlink($file->getPathname());
+        }
+        rmdir($dir);
+    }
+
 }

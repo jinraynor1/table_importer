@@ -17,6 +17,7 @@ class Import
     const MODE_REPLACE = 1;
     const MODE_APPEND = 2;
     private $import_mode = self::MODE_REPLACE;
+    protected $tmp_dir;
     protected $tmp_file;
     protected $table_name;
     protected $tmp_filename_prefix = 'jinraynor1_table_importer_';
@@ -82,6 +83,8 @@ class Import
 
         $this->source_config = $source_config;
         $this->target_config = $target_config;
+
+        $this->tmp_dir = sys_get_temp_dir();
     }
 
     /**
@@ -148,6 +151,21 @@ class Import
     {
         $this->import_driver = $import_driver;
         return $this;
+    }
+
+    /**
+     * @param $tmp_dir
+     * @throws \Exception
+     */
+    public function setTmpDir($tmp_dir)
+    {
+        if(!is_dir($tmp_dir) || !file_exists($tmp_dir) || !is_writable($tmp_dir)){
+            throw new \Exception("Invalid directory $tmp_dir");
+        }
+
+        $this->tmp_dir = $tmp_dir;
+        return $this;
+
     }
 
     public function __destruct()
@@ -229,7 +247,7 @@ class Import
 
     protected function buildFileObject()
     {
-        $tmp_filename = tempnam(sys_get_temp_dir(), $this->tmp_filename_prefix);
+        $tmp_filename = tempnam($this->tmp_dir, $this->tmp_filename_prefix);
         $this->file = new \SplFileObject($tmp_filename, 'w+');
         $this->file->setCsvControl($this->csv_delimiter, $this->csv_enclosure, $this->csv_escape_char);
         $this->file->setFlags(\SplFileObject::READ_CSV | \SplFileObject::SKIP_EMPTY);
