@@ -242,4 +242,18 @@ class ImportTest extends TestCase
         rmdir($dir);
     }
 
+    public function testCanGetRecordsFounded()
+    {
+
+        self::$driver->setInsertModeBasic();
+        $that = $this;
+        $importer = self::$importer;
+        self::$importer->setCallbackBeforePushData( function(SplFileInfo $file) use($that, $importer) {
+            $records_founded = $importer->getRecordsFounded();
+            $that->assertSame(2, $records_founded);
+        });
+        $imported_lines = self::$importer->run();
+
+    }
+
 }

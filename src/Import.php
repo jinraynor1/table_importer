@@ -73,6 +73,11 @@ class Import
     private $callback_before_push_data = null;
 
     /**
+     * @var null
+     */
+    private $records_founded = null;
+
+    /**
      * AbstractRemoteImport constructor.
      */
     public function __construct(ConfigDatabase $source_config, ConfigDatabase $target_config)
@@ -180,6 +185,11 @@ class Import
         }
     }
 
+    public function getRecordsFounded()
+    {
+        return $this->records_founded;
+    }
+
     public function getFile()
     {
         return $this->file;
@@ -211,9 +221,9 @@ class Import
             $this->import_driver->setCsvNullValue($this->csv_null_value);
             $this->import_driver->setCsvEscapeChar($this->csv_escape_char);
 
-            $records_founded = $this->pullData();
-            $this->logger->info(sprintf("founded %d records on remote database", $records_founded));
-            $this->import_driver->setRecordsFounded($records_founded);
+            $this->records_founded = $this->pullData();
+            $this->logger->info(sprintf("founded %d records on remote database", $this->records_founded));
+            $this->import_driver->setRecordsFounded($this->records_founded);
 
             if ($this->callback_before_push_data && is_callable($this->callback_before_push_data)) {
                 call_user_func_array($this->callback_before_push_data, array($this->file));
