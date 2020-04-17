@@ -75,6 +75,11 @@ class Import
     /**
      * @var null
      */
+    private $callback_row = null;
+
+    /**
+     * @var null
+     */
     private $records_founded = null;
 
     /**
@@ -149,6 +154,12 @@ class Import
     public function setCallbackBeforePushData($callback_before_push_data)
     {
         $this->callback_before_push_data = $callback_before_push_data;
+        return $this;
+    }
+
+    public function setCallbackRow($callback_row)
+    {
+        $this->callback_row = $callback_row;
         return $this;
     }
 
@@ -336,6 +347,10 @@ class Import
 
         $handler = fopen($this->file->getRealPath(), "w");
         while ($row = $stmt->fetch()) {
+
+            if($this->callback_row && is_callable($this->callback_row)){
+                $row = call_user_func($this->callback_row, $row);
+            }
 
             foreach ($row as $field => $value) {
                 if ($value === null) {
