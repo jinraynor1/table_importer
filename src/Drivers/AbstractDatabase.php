@@ -32,7 +32,7 @@ abstract class AbstractDatabase implements DatabaseInterface
     protected $fields;
 
     /**
-     * @var array
+     * @var bool
      */
     protected $use_field_names = false;
 
@@ -141,6 +141,8 @@ abstract class AbstractDatabase implements DatabaseInterface
 
     public function load()
     {
+        $this->buffer = array();
+
         if ($this->insert_mode == self::USE_ADVANCED_LOAD) {
 
             return $this->optimizedInsert();
@@ -260,7 +262,7 @@ abstract class AbstractDatabase implements DatabaseInterface
         }
 
         if($this->use_field_names){
-            $sql_fields = '`' . implode('`,`', $this->fields) . '`';
+            $sql_fields = '(`' . implode('`,`', $this->fields) . '`)';
         }else{
             $sql_fields = null;
         }
