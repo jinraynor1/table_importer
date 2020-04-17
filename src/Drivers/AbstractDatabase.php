@@ -30,6 +30,12 @@ abstract class AbstractDatabase implements DatabaseInterface
      * @var array
      */
     protected $fields;
+
+    /**
+     * @var array
+     */
+    protected $use_field_names = false;
+
     /**
      * @var array
      */
@@ -81,6 +87,13 @@ abstract class AbstractDatabase implements DatabaseInterface
     public function setFields($fields)
     {
         $this->fields = $fields;
+    }
+    /**
+     * @param array $use_field_names
+     */
+    public function setUseFieldNames($use_field_names)
+    {
+        $this->use_field_names = $use_field_names;
     }
 
     public function setInsertModeBasic()
@@ -246,9 +259,13 @@ abstract class AbstractDatabase implements DatabaseInterface
             $values_group_list[] = "($this->placeholders_list)\n";
         }
 
-        $sql_fields = '`' . implode('`,`', $this->fields) . '`';
+        if($this->use_field_names){
+            $sql_fields = '`' . implode('`,`', $this->fields) . '`';
+        }else{
+            $sql_fields = null;
+        }
 
-        $sql = sprintf("INSERT INTO $this->table_name ($sql_fields) VALUES %s", implode(',', $values_group_list));
+        $sql = sprintf("INSERT INTO $this->table_name $sql_fields VALUES %s", implode(',', $values_group_list));
 
         $this->sth = $this->database->prepare($sql);
     }

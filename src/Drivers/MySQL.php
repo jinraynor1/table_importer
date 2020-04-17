@@ -16,7 +16,11 @@ class MySQL extends AbstractDatabase
 
         $local = $this->local_in_file ? "LOCAL" : "";
 
-        $fields = '(`' . implode('`,`', $this->fields) . '`)';
+        if($this->use_field_names) {
+            $fields = '(`' . implode('`,`', $this->fields) . '`)';
+        }else{
+            $fields = null;
+        }
 
 
         $sql = '

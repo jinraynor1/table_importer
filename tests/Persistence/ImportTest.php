@@ -43,10 +43,13 @@ class ImportTest extends TestCase
     protected static $pdo;
 
 
-
-    public static function setUpBeforeClass()
+    public function setUp()
     {
         self::initDatabase();
+
+    }
+    public static function setUpBeforeClass()
+    {
 
         self::$logger = new Logger("example01");
         self::$logger->pushHandler(new StreamHandler('php://stdout',LOGGER::CRITICAL));
@@ -94,6 +97,10 @@ class ImportTest extends TestCase
         $dsn  = self::$driver_name .":host=".$GLOBALS["DB_HOST"].";dbname=" . $GLOBALS["DB_NAME"];
         self::$pdo = new PDO($dsn,$GLOBALS["DB_USER"],$GLOBALS["DB_PASS"]);
         $querys = array();
+
+        $querys[] = "DROP TABLE IF EXISTS source_table";
+        $querys[] = "DROP TABLE IF EXISTS target_table";
+
         $querys[] = "CREATE TABLE IF NOT EXISTS source_table (colA INT UNSIGNED)";
         $querys[] = "CREATE TABLE IF NOT EXISTS target_table (colA INT UNSIGNED)";
 
@@ -268,7 +275,7 @@ class ImportTest extends TestCase
 
         self::$importer->setCallbackRow( function($row) {
             $row['colA'] = $row['colA']  + 99;
-            $row['colB'] = $row['colA']  + 99;
+            $row[] = $row['colA']  + 99;
             return $row;
         });
         $imported_lines = self::$importer->run();
@@ -276,5 +283,23 @@ class ImportTest extends TestCase
         $this->assertEquals(2, $imported_lines);
         $value = self::$pdo->query("SELECT colA FROM target_table")->fetchColumn();
         $this->assertEquals(100, $value);
+    }
+
+    public function testNewFieldNames()
+    {
+        self::$driver->setInsertModeAdvanced();
+        self::$driver->setUseFieldNames(true);
+        self::$pdo->query("ALTER TABLE target_table ADD COLUMN colB INT UNSIGNED");
+
+        self::$importer->setCallbackRow( function($row) {
+            $row['colA'] = 1;
+            $row['colB'] = 2;
+            return $row;
+        });
+        $imported_lines = self::$importer->run();
+
+        $this->assertEquals(2, $imported_lines);
+
+
     }
 }
