@@ -346,10 +346,15 @@ class Import
         $records_founded = 0;
 
         $handler = fopen($this->file->getRealPath(), "w");
+        $i = 0;
         while ($row = $stmt->fetch()) {
 
             if($this->callback_row && is_callable($this->callback_row)){
                 $row = call_user_func($this->callback_row, $row);
+            }
+
+            if($i==0){
+                $this->import_driver->setFields(array_keys($row));
             }
 
             foreach ($row as $field => $value) {
@@ -360,8 +365,9 @@ class Import
             $records_founded++;
 
             fputcsv($handler, $row);
-
+            $i++;
         }
+        
 
         fclose($handler);
 

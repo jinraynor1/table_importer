@@ -16,13 +16,17 @@ class MySQL extends AbstractDatabase
 
         $local = $this->local_in_file ? "LOCAL" : "";
 
+        $fields = '(`' . implode('`,`', $this->fields) . '`)';
+
+
         $sql = '
 			LOAD DATA ' . $local . ' INFILE ' . $this->database->quote($this->file->getRealPath()) . '			
 			IGNORE INTO TABLE ' . $this->quoteIdent($this->table_name) . '
 			CHARACTER SET BINARY
 			FIELDS TERMINATED BY ' . $this->database->quote($delimiter) . '
 			OPTIONALLY ENCLOSED BY ' . $this->database->quote($enclosure) . '
-			ESCAPED BY ' . $this->database->quote($this->csv_escape_char);
+			ESCAPED BY ' . $this->database->quote($this->csv_escape_char).'
+			' . $fields;
 
 
         $this->sth = $this->database->prepare($sql);

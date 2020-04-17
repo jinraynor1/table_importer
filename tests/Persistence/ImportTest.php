@@ -264,9 +264,11 @@ class ImportTest extends TestCase
     {
         self::$driver->setInsertModeAdvanced();
 
+        self::$pdo->query("ALTER TABLE target_table ADD COLUMN colB INT UNSIGNED");
 
         self::$importer->setCallbackRow( function($row) {
             $row['colA'] = $row['colA']  + 99;
+            $row['colB'] = $row['colA']  + 99;
             return $row;
         });
         $imported_lines = self::$importer->run();
