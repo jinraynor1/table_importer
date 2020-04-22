@@ -84,31 +84,51 @@ abstract class AbstractDatabase implements DatabaseInterface
         $this->table_name = $table_name;
     }
 
+    /**
+     * @param array $fields
+     */
     public function setFields($fields)
     {
         $this->fields = $fields;
     }
     /**
-     * @param array $use_field_names
+     * If true data is loaded using column names obtained from query result and array from callback row.
+     * If false data is loaded without specifying column names so your query result must match table structure.
+     *
+     * Default value is false
+     *
+     * @param boolean $use_field_names
      */
     public function setUseFieldNames($use_field_names)
     {
         $this->use_field_names = $use_field_names;
     }
 
+    /**
+     * Send to server each record as normal sql insert text
+     * @return $this
+     */
     public function setInsertModeBasic()
     {
         $this->insert_mode = self::USE_NORMAL_INSERT;
         return $this;
     }
 
+    /**
+     * Send to server a group of records as a block sql of insert text
+     * @return $this
+     */
     public function setInsertModeMultiple()
     {
         $this->insert_mode = self::USE_MULTIPLE_INSERT;
         return $this;
     }
 
-
+    /**
+     * Send to server using optimize bulk load, for example mysql will use "LOAD DATA",
+     * postgres will use "COPY FROM ", if driver doest not implement you could inject it
+     * @return $this
+     */
     public function setInsertModeAdvanced()
     {
         $this->insert_mode = self::USE_ADVANCED_LOAD;

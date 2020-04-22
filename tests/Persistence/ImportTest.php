@@ -288,7 +288,7 @@ class ImportTest extends TestCase
         $this->assertEquals(100, $value);
     }
 
-    public function atestNewFieldNames()
+    public function testNewFieldNames()
     {
         self::$driver->setInsertModeAdvanced();
         self::$driver->setUseFieldNames(true);
