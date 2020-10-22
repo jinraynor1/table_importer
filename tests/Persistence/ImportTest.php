@@ -282,6 +282,7 @@ class ImportTest extends TestCase
 
         $imported_lines = self::$importer->run();
 
+        self::$importer->setCallbackRow(null);
 
         $this->assertEquals(2, $imported_lines);
         $value = self::$pdo->query("SELECT colA FROM target_table")->fetchColumn();
@@ -302,7 +303,16 @@ class ImportTest extends TestCase
         $imported_lines = self::$importer->run();
 
         $this->assertEquals(2, $imported_lines);
+        self::$importer->setCallbackRow(null);
 
 
+    }
+
+    public function testConcurrentInsert()
+    {
+        self::$driver->setInsertModeAdvanced();
+        self::$driver->concurrent_insert = true;
+        $imported_lines = self::$importer->run();
+        $this->assertEquals(2, $imported_lines);
     }
 }

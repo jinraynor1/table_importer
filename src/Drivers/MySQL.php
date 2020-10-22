@@ -8,6 +8,7 @@ class MySQL extends AbstractDatabase
 {
 
     public $local_in_file = true;
+    public $concurrent_insert = false;
 
     public function optimizedInsert()
     {
@@ -15,6 +16,7 @@ class MySQL extends AbstractDatabase
         list($delimiter, $enclosure,) = $this->file->getCsvControl();
 
         $local = $this->local_in_file ? "LOCAL" : "";
+        $concurrent = $this->concurrent_insert ? "CONCURRENT" : "";
 
         if($this->use_field_names) {
             $fields = '(`' . implode('`,`', $this->fields) . '`)';
@@ -24,7 +26,7 @@ class MySQL extends AbstractDatabase
 
 
         $sql = '
-			LOAD DATA ' . $local . ' INFILE ' . $this->database->quote($this->file->getRealPath()) . '			
+			LOAD DATA ' . $concurrent . ' ' . $local . ' INFILE ' . $this->database->quote($this->file->getRealPath()) . '			
 			IGNORE INTO TABLE ' . $this->quoteIdent($this->table_name) . '
 			CHARACTER SET BINARY
 			FIELDS TERMINATED BY ' . $this->database->quote($delimiter) . '
