@@ -408,7 +408,7 @@ class Import
         if ($this->import_mode == self::MODE_APPEND) {
             $this->logger->info("push mode is append");
 
-            $affected_rows = $this->import_driver->load();
+            $affected_rows = $this->import_strategy->load($this->import_driver,$this->db_target, $this->table_name);
 
         } elseif ($this->import_mode == self::MODE_REPLACE) {
 

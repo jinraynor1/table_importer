@@ -318,4 +318,15 @@ class ImportTest extends TestCase
         $imported_lines = self::$importer->run();
         $this->assertEquals(2, $imported_lines);
     }
+
+    public function testTransactionStrategy()
+    {
+        self::$driver->setInsertModeAdvanced();
+        $transactionStrategy = new \Jinraynor1\TableImporter\Strategies\TransactionTableStrategy();
+        self::$importer->setImportStrategy($transactionStrategy);
+
+        $imported_lines = self::$importer->run();
+        $this->assertEquals(2, $imported_lines);
+
+    }
 }

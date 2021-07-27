@@ -9,6 +9,12 @@ use PDO;
 
 class RenameTableStrategy implements StrategyInterface
 {
+    public function load(DatabaseInterface $import_driver, \PDO $db_target, $table_name)
+    {
+        return $import_driver->load();
+
+    }
+
     public function replace(DatabaseInterface $import_driver, PDO $db_target, $table_name)
     {
 
