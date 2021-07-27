@@ -6,6 +6,8 @@ namespace Jinraynor1\TableImporter;
 use Jinraynor1\TableImporter\Drivers\AbstractDatabase;
 use Jinraynor1\TableImporter\Drivers\DatabaseInterface;
 use Jinraynor1\TableImporter\Drivers\DefaultDriver;
+use Jinraynor1\TableImporter\Strategies\RenameTableStrategy;
+use Jinraynor1\TableImporter\Strategies\StrategyInterface;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
@@ -52,6 +54,12 @@ class Import
      * @var AbstractDatabase
      */
     protected $import_driver;
+
+    /**
+     * @var StrategyInterface
+     */
+    protected $import_strategy;
+
     /**
      * @var ConfigDatabase
      */
@@ -90,6 +98,7 @@ class Import
 
         $this->logger = new NullLogger();
         $this->import_driver = new DefaultDriver();
+        $this->import_strategy = new RenameTableStrategy();
 
         $this->source_config = $source_config;
         $this->target_config = $target_config;
@@ -169,6 +178,11 @@ class Import
         return $this;
     }
 
+    public function setImportStrategy(StrategyInterface  $import_strategy)
+    {
+        $this->import_strategy = $import_strategy;
+    }
+
     /**
      * @param $tmp_dir
      * @throws \Exception
@@ -192,7 +206,9 @@ class Import
     public function clearFile()
     {
         if ($this->file && $this->file->isFile()) {
-            @unlink($this->file->getRealPath());
+            $file = $this->file->getRealPath();
+            $this->file = null; // unlink will not work if splfileinfo reference exists on windows
+            @unlink($file);
         }
     }
 
@@ -204,6 +220,11 @@ class Import
     public function getFile()
     {
         return $this->file;
+    }
+
+    public function getTmpFile()
+    {
+        return $this->tmp_file;
     }
 
     public function run()
@@ -272,7 +293,7 @@ class Import
         $this->file = new \SplFileObject($tmp_filename, 'w+');
         $this->file->setCsvControl($this->csv_delimiter, $this->csv_enclosure, $this->csv_escape_char);
         $this->file->setFlags(\SplFileObject::READ_CSV | \SplFileObject::SKIP_EMPTY);
-
+        $this->tmp_file = $tmp_filename;
     }
 
 
@@ -390,30 +411,9 @@ class Import
             $affected_rows = $this->import_driver->load();
 
         } elseif ($this->import_mode == self::MODE_REPLACE) {
+
             $this->logger->info("push mode is replace");
-
-            $old_table = $this->table_name;
-            $tmp_table = "tmp_$this->table_name";
-            $new_table = "new_{$this->table_name}";
-
-            $this->db_target->exec("DROP TABLE IF EXISTS $tmp_table");
-            $this->db_target->exec("DROP TABLE IF EXISTS $new_table");
-
-            $this->db_target->exec("CREATE TABLE $new_table LIKE $old_table");
-
-            $this->import_driver->setTableName($new_table);
-
-            $affected_rows = $this->import_driver->load();
-
-
-            $this->db_target->exec(
-                "RENAME TABLE $old_table TO $tmp_table,
-                 $new_table TO $old_table,
-                 $tmp_table TO $new_table"
-            );
-
-            $this->db_target->exec("DROP TABLE IF EXISTS $tmp_table");
-            $this->db_target->exec("DROP TABLE IF EXISTS $new_table");
+            $affected_rows = $this->import_strategy->replace($this->import_driver,$this->db_target, $this->table_name);
         } else {
 
             throw new \InvalidArgumentException("Invalid import mode");

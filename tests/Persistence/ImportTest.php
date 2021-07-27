@@ -152,7 +152,7 @@ class ImportTest extends TestCase
         self::$importer->setImportModeIsReplace()
             ->run();
 
-        $this->assertFalse(file_exists(self::$importer->getFile()->getRealPath()));
+        $this->assertFalse(file_exists(self::$importer->getTmpFile()));
     }
 
 
@@ -211,6 +211,9 @@ class ImportTest extends TestCase
     {
         self::$driver->setInsertModeBasic();
         $custom_tmp_dir = sys_get_temp_dir()."/subdir1/subdir2/";
+        if(file_exists($custom_tmp_dir)){
+            $this->rmdir_recursive($custom_tmp_dir);
+        }
 
         $this->expectException("Exception");
         self::$importer->setTmpDir($custom_tmp_dir);
@@ -220,7 +223,7 @@ class ImportTest extends TestCase
 
     public function testCanSetTmpDir()
     {
-        $custom_tmp_dir = sys_get_temp_dir()."/subdir1/subdir2/";
+        $custom_tmp_dir = sys_get_temp_dir().DIRECTORY_SEPARATOR."subdir1".DIRECTORY_SEPARATOR."subdir2".DIRECTORY_SEPARATOR;
         if(file_exists($custom_tmp_dir)){
             $this->rmdir_recursive($custom_tmp_dir);
         }
@@ -230,9 +233,9 @@ class ImportTest extends TestCase
         self::$importer->setTmpDir($custom_tmp_dir);
         self::$importer->setCallbackBeforePushData( function(SplFileInfo $file) use($that, $custom_tmp_dir){
             $path = $file->getPath();
-            $path = rtrim($path,'/');
-            $custom_tmp_dir = rtrim($custom_tmp_dir,'/');
-              $that->assertSame($custom_tmp_dir, $path);
+            $path = rtrim($path,DIRECTORY_SEPARATOR);
+            $custom_tmp_dir = rtrim($custom_tmp_dir,DIRECTORY_SEPARATOR);
+            $that->assertSame($custom_tmp_dir, $path);
         });
 
         $imported_lines = self::$importer->run();

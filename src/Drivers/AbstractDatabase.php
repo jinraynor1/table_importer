@@ -165,18 +165,21 @@ abstract class AbstractDatabase implements DatabaseInterface
 
         if ($this->insert_mode == self::USE_ADVANCED_LOAD) {
 
-            return $this->optimizedInsert();
+            $response =  $this->optimizedInsert();
 
         } elseif ($this->insert_mode == self::USE_MULTIPLE_INSERT) {
 
-            return $this->multipleInsert();
+            $response =  $this->multipleInsert();
 
         } else {
 
-            return $this->normalInsert();
+            $response =  $this->normalInsert();
 
         }
 
+        $this->file = null; // unlink will not work if splfileinfo reference exists on windows
+
+        return $response;
 
     }
 
