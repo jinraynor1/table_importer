@@ -329,4 +329,23 @@ class ImportTest extends TestCase
         $this->assertEquals(2, $imported_lines);
 
     }
+
+    public function testCharacterSet()
+    {
+        self::$driver->setInsertModeAdvanced();
+        self::$driver->character_set = 'utf8';
+
+
+        $imported_lines = self::$importer->run();
+        $this->assertEquals(2, $imported_lines);
+
+    }
+
+    public function testInvalidCharacterSet()
+    {
+        self::$driver->setInsertModeAdvanced();
+        self::$driver->character_set = 'invalid_charset';
+        $imported_lines = self::$importer->run();
+        $this->assertEquals(0, $imported_lines);
+    }
 }
