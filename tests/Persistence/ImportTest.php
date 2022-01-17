@@ -330,38 +330,23 @@ class ImportTest extends TestCase
 
     }
 
-    public function testCharacterSet()
+    public function testCharset()
     {
         self::$driver->setInsertModeAdvanced();
-        self::$driver->character_set = 'utf8';
-
-
+        self::$driver->charset= 'utf8';
         $imported_lines = self::$importer->run();
         $this->assertEquals(2, $imported_lines);
 
     }
 
-    public function testInvalidCharacterSet()
+    public function testCharsetInvalid()
     {
         self::$driver->setInsertModeAdvanced();
-        self::$driver->character_set = 'invalid_charset';
+        self::$driver->charset= 'invalid_charset';
         $imported_lines = self::$importer->run();
         $this->assertEquals(0, $imported_lines);
-    }
-
-    public function testThrowException()
-    {
-        self::$pdo->query("DROP TABLE target_table");
-
-        self::$importer->setThrowExceptions(true);
-        try {
-            self::$importer->run();
-
-            throw new Exception("Must not get here");
-        } catch (Exception $e) {
-            $this->assertTrue(true);
-        }
-
 
     }
+
+
 }
