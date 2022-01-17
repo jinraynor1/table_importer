@@ -348,4 +348,20 @@ class ImportTest extends TestCase
         $imported_lines = self::$importer->run();
         $this->assertEquals(0, $imported_lines);
     }
+
+    public function testThrowException()
+    {
+        self::$pdo->query("DROP TABLE target_table");
+
+        self::$importer->setThrowExceptions(true);
+        try {
+            self::$importer->run();
+
+            throw new Exception("Must not get here");
+        } catch (Exception $e) {
+            $this->assertTrue(true);
+        }
+
+
+    }
 }

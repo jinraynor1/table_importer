@@ -90,6 +90,9 @@ class Import
      */
     private $records_founded = null;
 
+
+    private $throw_exceptions = null;
+
     /**
      * AbstractRemoteImport constructor.
      */
@@ -198,6 +201,14 @@ class Import
 
     }
 
+    /**
+     * @param $bool
+     */
+    public function setThrowExceptions($bool)
+    {
+        $this->throw_exceptions = $bool;
+    }
+
     public function __destruct()
     {
         $this->clearFile();
@@ -227,6 +238,10 @@ class Import
         return $this->tmp_file;
     }
 
+    /**
+     * @return bool|int|mixed
+     * @throws \Exception
+     */
     public function run()
     {
 
@@ -267,6 +282,9 @@ class Import
 
 
         } catch (\Exception $e) {
+            if($this->throw_exceptions){
+                throw $e;
+            }
             $this->logger->critical(sprintf("error code: %s, error message: %s", $e->getLine(), $e->getMessage()));
             return $records_imported;
         }
